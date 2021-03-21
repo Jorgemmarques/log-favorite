@@ -80,3 +80,72 @@ function run_log_favorite() {
 
 }
 run_log_favorite();
+
+// Enqueue Scripts
+wp_enqueue_script( 'main-js', plugin_dir_url( __FILE__ ) . 'public/js/log-favorite-public.js' );
+wp_localize_script( 'main-js', 'mainajax', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ) ) );
+
+// Filters and Actions
+add_filter('the_content', 'add_button');
+
+add_action('wp_ajax_add_favorite', 'add_favorite');
+add_action('wp_ajax_nopriv_add_favorite', 'add_favorite');
+
+add_action('wp_ajax_remove_favorite', 'remove_favorite');
+add_action('wp_ajax_nopriv_remove_favorite', 'remove_favorite');
+
+
+// Function to display button on content
+function add_button($content) {
+
+	if (!is_singular('post') || !is_user_logged_in()){
+		return $content;
+	}
+
+	$favorites = get_user_meta(get_current_user_id(), 'user_favorites', false);
+
+	$after_content = '<form id="add-favorite">';
+	$after_content .= '<input type="hidden" name="user_id" value="'. get_current_user_id() .'">';
+	$after_content .= '<input type="hidden" name="post_id" value="'. get_the_ID() .'">';
+
+	if(in_array(get_the_ID(), $favorites)) {
+		$after_content .= '<input type="hidden" name="action" value="remove_favorite">';
+		$after_content .= '<input type="submit" value="Remover de Favoritos">';
+	} else {
+		$after_content .= '<input type="hidden" name="action" value="add_favorite">';
+		$after_content .= '<input type="submit" value="Adicionar a Favoritos">';
+	}
+	
+	$after_content .= '</form>';
+	$content = $content . $after_content;
+	
+
+	return $content;
+
+}
+
+
+//Function to save post in user_meta
+function add_favorite() {
+	$user_id = $_POST['user_id'];
+	$post_id = $_POST['post_id'];
+
+	add_user_meta( $user_id, 'user_favorites', $post_id);
+
+	print_r('Post Adicionado a Favoritos');
+
+	die();
+}
+
+
+//Function to remove post from user_meta
+function remove_favorite() {
+	$user_id = $_POST['user_id'];
+	$post_id = $_POST['post_id'];
+
+	delete_user_meta( $user_id, 'user_favorites', $post_id);
+
+	print_r('Post Removido de Favoritos');
+
+	die();
+}
