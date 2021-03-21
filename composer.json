@@ -1,0 +1,15 @@
+{
+    "name": "jorginho/log-favorite",
+    "description": "Plugin for Favorites",
+    "type": "wordpress-plugin",
+    "authors": [
+        {
+            "name": "Jorge",
+            "email": "jorge.mmarques@protonmail.com"
+        }
+    ],
+    "require": {
+        "composer/installers": "~1.0",
+        "php": ">=5.5.9"
+    },
+}
