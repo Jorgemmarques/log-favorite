@@ -91,7 +91,7 @@ function run_log_favorite() {
 run_log_favorite();
 
 // Enqueue Scripts
-wp_enqueue_script( 'main-js', plugin_dir_url( __FILE__ ) . 'public/js/log-favorite-public.js' );
+wp_enqueue_script( 'main-js', plugin_dir_url( __FILE__ ) . 'public/js/log-favorite-public.js', 'jquery');
 wp_localize_script( 'main-js', 'mainajax', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ) ) );
 
 // Filters and Actions
@@ -111,7 +111,7 @@ add_action( 'rest_api_init', 'adding_user_favorites_rest' );
 // Function to display button on content
 function add_button($content) {
 
-	if (!is_singular('post') || !is_user_logged_in()){
+	if (!is_singular('post') && !is_user_logged_in()){
 		return $content;
 	}
 
@@ -123,10 +123,10 @@ function add_button($content) {
 
 	if(in_array(get_the_ID(), $favorites)) {
 		$after_content .= '<input type="hidden" name="action" value="remove_favorite">';
-		$after_content .= '<input type="submit" value="Remover de Favoritos">';
+		$after_content .= '<input type="submit" value="'. __('Remover de Favoritos', 'log-favorite') .'">';
 	} else {
 		$after_content .= '<input type="hidden" name="action" value="add_favorite">';
-		$after_content .= '<input type="submit" value="Adicionar a Favoritos">';
+		$after_content .= '<input type="submit" value="'. __('Adicionar a Favoritos', 'log-favorite') .'">';
 	}
 	
 	$after_content .= '</form>';
@@ -145,7 +145,7 @@ function add_favorite() {
 
 	add_user_meta( $user_id, 'user_favorites', $post_id);
 
-	print_r('Post Adicionado a Favoritos');
+	print_r(_e('Post Adicionado a Favoritos', 'log-favorite'));
 
 	die();
 }
@@ -158,7 +158,7 @@ function remove_favorite() {
 
 	delete_user_meta( $user_id, 'user_favorites', $post_id);
 
-	print_r('Post Removido de Favoritos');
+	print_r(_e('Post Removido de Favoritos', 'log-favorite'));
 
 	die();
 }
@@ -185,7 +185,7 @@ function adding_user_favorites_rest() {
     register_rest_field( 'user',
         'user_favorites',
         array(
-            'get_callback'      => 'get_api_callback',
+            'get_callback'      => 'get_favorites_api_callback',
             'update_callback'   => 'update_favorites_api_callback',
             'schema'            => null,
         )
@@ -203,7 +203,7 @@ function update_favorites_api_callback($user, $meta_value ) {
     	add_user_meta( $user_id, 'user_favorites', $post_id);
     	return true;
     } else {
-    	return 'Post já se encontra nos favoritos';
+    	return (_e('Post Removido de Favoritos', 'log-favorite'));
     }
     
 }
