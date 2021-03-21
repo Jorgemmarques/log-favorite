@@ -99,6 +99,8 @@ add_action('wp_ajax_nopriv_add_favorite', 'add_favorite');
 add_action('wp_ajax_remove_favorite', 'remove_favorite');
 add_action('wp_ajax_nopriv_remove_favorite', 'remove_favorite');
 
+add_shortcode( 'favorites_list', 'favorites_shortcode' );
+
 
 // Function to display button on content
 function add_button($content) {
@@ -153,4 +155,21 @@ function remove_favorite() {
 	print_r('Post Removido de Favoritos');
 
 	die();
+}
+
+
+//Shortcode to list Favorites
+function favorites_shortcode() {
+   $favorites = get_user_meta(get_current_user_id(), 'user_favorites', false);
+
+	if(!empty($favorites)) {
+		$output = '<ul>';
+		foreach ($favorites as $favorite) {
+			$post = get_post($favorite);
+			$output .= '<li><a href="'.get_permalink($post->ID).'">'.$post->post_title.'</a></li>';
+		}
+		$output .= '</ul>';
+	}
+
+	return $output;
 }
