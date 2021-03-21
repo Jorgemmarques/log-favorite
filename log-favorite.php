@@ -101,6 +101,8 @@ add_action('wp_ajax_nopriv_remove_favorite', 'remove_favorite');
 
 add_shortcode( 'favorites_list', 'favorites_shortcode' );
 
+add_action( 'rest_api_init', 'adding_user_favorites_rest' );
+
 
 // Function to display button on content
 function add_button($content) {
@@ -172,4 +174,32 @@ function favorites_shortcode() {
 	}
 
 	return $output;
+}
+
+//Add field to Rest
+function adding_user_favorites_rest() {
+    register_rest_field( 'user',
+        'user_favorites',
+        array(
+            'get_callback'      => 'get_api_callback',
+            'update_callback'   => 'update_favorites_api_callback',
+            'schema'            => null,
+        )
+    );
+}
+
+function get_favorites_api_callback( $user, $field_name, $request) {
+    return get_user_meta( $user['id'], 'user_favorites' );
+}
+
+function update_favorites_api_callback($user, $meta_value ) {
+    $favorites  = get_user_meta($user['id'], 'user_favorites', false);
+
+    if(!in_array($favorites)) {
+    	add_user_meta( $user_id, 'user_favorites', $post_id);
+    	return true;
+    } else {
+    	return 'Post já se encontra nos favoritos';
+    }
+    
 }
