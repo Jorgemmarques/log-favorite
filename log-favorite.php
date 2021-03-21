@@ -65,6 +65,11 @@ register_deactivation_hook( __FILE__, 'deactivate_log_favorite' );
 require plugin_dir_path( __FILE__ ) . 'includes/class-log-favorite.php';
 
 /**
+ * Favorites Widget
+ */
+require plugin_dir_path( __FILE__ ) . 'includes/widget-log-favorite.php';
+
+/**
  * Begins execution of the plugin.
  *
  * Since everything within the plugin is registered via hooks,
